@@ -1,0 +1,6 @@
+name= input("Please enter your name")
+age= int(input("Please enter your name {}".format(name)))
+if (age>18) and (age<31):
+    print("Enjoy your vacay!")
+else:
+    print("I'm sorry, you can't come for the trip")
