@@ -1,0 +1,6 @@
+name = input("Enter name")
+age =int(input("How old are you {}?".format(name)))
+if age >= 18:
+    print("Yay!")
+else:
+    print("Nay!")
