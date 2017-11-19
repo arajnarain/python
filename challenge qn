@@ -1,0 +1,13 @@
+ipAddress= input("Enter IP address:")
+char1=" "
+segment = 1
+segment_length=0
+for char1 in ipAddress:
+    if char1 == '.':
+        print("segment {} has {} characters".format(segment, segment_length))
+        segment+=1
+        segment_length=0
+    else:
+        segment_length+=1
+if char1 != '.':
+    print("segment {} has {} characters".format(segment, segment_length))
