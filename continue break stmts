@@ -1,0 +1,17 @@
+shops = "walmart, kroger, costco, ross, marshall, forever21" 
+
+#continuestmt
+for item in shops: 
+    if item== "ross":
+        continue
+    print("Buy from" + item)
+    
+    
+    
+#breakstmt
+for item in shops: 
+    if item=="ross":
+        break
+    print("Buy from" +item) ---> # only walmart kroger costco will get printed
+    
+    
