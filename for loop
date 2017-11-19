@@ -1,0 +1,18 @@
+for i in range(1,20):
+    print("i is now {}".format(i))
+  
+  
+numb= "9,322,372,036,576,444"
+clean= ''
+for char in numb: 
+    if char in '0123456789: 
+        clean = clean + char
+        
+new= int(clean)
+print("The numbers are {}".format(new)
+
+
+for i in range(0,100,5):
+print("The number is" +i)
+
+
