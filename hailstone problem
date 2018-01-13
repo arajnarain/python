@@ -1,0 +1,16 @@
+import time
+start = time.process_time()
+hailstone=[]
+for i in range(10000):
+    x=i+1
+    count=1
+    while x > 1:
+        if x%2==0:
+            x /=2
+        else:
+            x = 3*x + 1
+        count +=1
+    hailstone.append(count)
+print(max(hailstone))
+stop= time.process_time()
+print(stop-start)
