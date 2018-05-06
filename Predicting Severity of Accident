@@ -1,0 +1,202 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Apr 29 15:38:47 2018
+
+@author: arajnarain
+"""
+
+#Importing Libraries
+import pandas as pd
+import numpy as np
+from sklearn import preprocessing
+import matplotlib.pyplot as plt 
+import math
+plt.rc("font", size=14)
+from sklearn.linear_model import LogisticRegression
+from sklearn.cross_validation import train_test_split
+import seaborn as sns
+sns.set(style="white")
+sns.set(style="whitegrid", color_codes=True)
+
+
+#Reading the dataset
+acc = pd.read_csv('dftRoadSafety_Accidents_2016.csv',header=0).values
+cas = pd.read_csv('Cas.csv',header=0).values
+veh = pd.read_csv('Veh.csv',header=0)
+newas=pd.read_csv('XNEW.csv',header=0)
+newas = newas.dropna()
+print(newas.shape)
+print(list(newas.columns))
+newcs=pd.read_csv('ACCCS.csv',header=0)
+print(newcs.shape)
+print(list(newcs.columns))
+newcs = newcs.dropna()
+newas.to_csv('newass.csv')
+
+#Visualizations
+#1
+sns.countplot(x='Accident_Severity',data=newas,palette='hls')
+plt.title('Figure 1')
+plt.show()
+
+#3
+pd.crosstab(newas.Number_of_Casualties,newas.Accident_Severity).plot(kind='bar')
+plt.title('Figure 3')
+plt.xlabel('Accident Severity')
+plt.ylabel('Death')
+
+#4
+pd.crosstab(newas.Light_Conditions,newas.Accident_Severity).plot(kind='bar')
+plt.title('Figure 4')
+plt.xlabel('Accident Severity')
+plt.ylabel('Death')
+
+#4.1
+pd.crosstab(newas.Light_Conditions,newas.Day_of_Week).plot(kind='bar')
+plt.title('Figure 5')
+plt.xlabel('Accident Severity')
+plt.ylabel('Death')
+
+#5
+pd.crosstab(newas.Speed_limit,newas.Day_of_Week).plot(kind='bar')
+plt.title('Figure 6')
+plt.xlabel('Accident Severity')
+plt.ylabel('Death')
+
+#6
+pd.crosstab(newas.Speed_limit,newas.Accident_Severity).plot(kind='bar')
+plt.title('Figure 7')
+plt.xlabel('Accident Severity based on speed')
+plt.ylabel('Death')
+
+
+#Assigning X and Y values
+X=newas.iloc[:,:-1]
+Y=newas.iloc[:,-1]
+
+#Feature Extraction
+from sklearn import datasets
+from sklearn.feature_selection import RFE
+from sklearn.linear_model import LogisticRegression
+logreg = LogisticRegression()
+rfe = RFE(logreg, 18)
+rfe = rfe.fit(X, Y= column_or_1d(Y, warn=True))
+print(rfe.support_)
+print(rfe.ranking_)
+
+#Setting X and Y values
+X=pd.read_csv('XNEW.csv')
+X=X.fillna(method='pad')
+X=X.values
+Y=pd.read_csv('Y.csv')
+
+#Split Data into Train Test and Validate
+X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.3, random_state=0)
+
+#Running Logistic Regression on the Data
+from sklearn.linear_model import LogisticRegression
+from sklearn import metrics
+lr = LogisticRegression()
+lr.fit(X_train, y_train)
+
+#Predicting the Accuracy of the model
+y_predlr1 = lr.predict(X1_test)
+print('Accuracy of logistic regression on test data: {:.2f}'.format(lr.score(X1_test, y1_test)))
+
+#Cross Validation
+from sklearn import model_selection
+from sklearn.model_selection import cross_val_score
+splitt = model_selection.KFold(n_splits=10, random_state=7)
+crossval = LogisticRegression()
+scoring = 'accuracy'
+results = model_selection.cross_val_score(crossval, X_train, y_train, cv=splitt, scoring=scoring)
+print("10-fold cross validation average accuracy: %.3f" % (results.mean()))
+
+#Confusion Matrix
+from pandas_ml import ConfusionMatrix
+cm = ConfusionMatrix(y_model,y_pred)
+cm.print_stats()
+
+#Precision Recall F-measure Support 
+from sklearn.metrics import classification_report
+print(classification_report(y_test, y_pred))
+from sklearn.metrics import confusion_matrix
+confusion_matrix(y_test, y_pred,)
+df_confusion = pd.crosstab(y_model, y_pred)
+print(df_confusion)
+merged= np.concatenate(X,Y)
+
+#Multinomial Logistic Regression
+newass = pd.read_csv('newass.csv',header=0)
+print(list(newass.columns))
+from scipy import stats
+import scipy.stats
+stats.chisqprob = lambda chisq, df: stats.chi2.sf(chisq, df)
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+
+model=smf.mnlogit('Accident_Severity~Number_of_Vehicles+Number_of_Casualties+FRoad_Class+Road_Type+Urban_or_Rural_Area+Did_Police_Officer_Attend_Scene_of_Accident+Casualty_Class+Sex_of_Casualty+Bus_or_Coach_Passenger+Casualty_Type+Vehicle_Type+Vehicle_Manoeuvre+Skidding_and_Overturning+Hit_Object_in_Carriageway+FPoint_of_Impact+Sex_of_Driver',
+                  data=newass[['Number_of_Vehicles', 'Number_of_Casualties', 'FRoad_Class', 'Road_Type', 'Urban_or_Rural_Area', 'Did_Police_Officer_Attend_Scene_of_Accident', 'Casualty_Class', 'Sex_of_Casualty', 'Bus_or_Coach_Passenger', 'Casualty_Type', 'Vehicle_Type', 'Vehicle_Manoeuvre', 'Skidding_and_Overturning', 'Hit_Object_in_Carriageway', 'FPoint_of_Impact','Sex_of_Driver', 'Accident_Severity']]).fit()
+model.summary()
+
+#RMSE Value
+def rmse(p,a):
+    return np.sqrt(((y_pred-y_test)**2).mean())
+print(rmse(y_pred,y_test))
+
+#PCA
+from sklearn.decomposition import PCA  
+model = PCA(n_components=2)            
+model.fit(newas)                      
+pc1 = model.transform(new)
+new['PCA1'] = pc1[:, 0]
+new['PCA2'] = pc1[:, 1]
+sns.lmplot("PCA1", "PCA2", hue='Accident_Severity', data=new, fit_reg=False);
+
+#SMOTE ANALYSIS TO UNBIAS THE DATA
+from imblearn.over_sampling import SMOTE
+smo = SMOTE(random_state=42)
+X_res, y_res = smo.fit_sample(X, Y)
+Xres_train, Xres_test, yres_train, yres_test = train_test_split(X_res, y_res, test_size=0.3, random_state=0)
+
+#Running Logistic Regression on the Data
+from sklearn.linear_model import LogisticRegression
+from sklearn import metrics
+lr = LogisticRegression()
+lr.fit(Xres_train, yres_train)
+
+#Predicting the Accuracy of the model
+y_predlr1 = lr.predict(Xres_test)
+print('Accuracy of logistic regression on test data: {:.2f}'.format(lr.score(Xres_test, yres_test)))
+
+#Cross Validation
+from sklearn import model_selection
+from sklearn.model_selection import cross_val_score
+splitt = model_selection.KFold(n_splits=10, random_state=7)
+crossval = LogisticRegression()
+scoring = 'accuracy'
+results = model_selection.cross_val_score(crossval, Xres_train, yres_train, cv=splitt, scoring=scoring)
+print("10-fold cross validation average accuracy: %.3f" % (results.mean()))
+
+#Confusion Matrix
+from pandas_ml import ConfusionMatrix
+cmlr1 = ConfusionMatrix(y1_test,y_predlr1)
+ypred=lr.predict(Xres_test)
+
+
+#Neural Network
+from keras.models import Sequential
+from keras.layers import Dense
+classifier = Sequential()
+classifier.add(Dense(output_dim = 6, init = 'uniform', activation = 'relu', input_dim = 67))
+classifier.add(Dense(output_dim = 6, init = 'uniform', activation = 'relu'))
+classifier.add(Dense(output_dim = 1, init = 'uniform', activation = 'sigmoid'))
+classifier.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
+classifier.fit(X_train, y_train, batch_size = 10, nb_epoch = 10)
+
+y_pred = classifier.predict(X_test)
+y_pred = (y_pred > 0.5)
+
+from sklearn.metrics import confusion_matrix
+cmneural = confusion_matrix(y_test, y_pred)
